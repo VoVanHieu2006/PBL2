@@ -1,0 +1,14 @@
+{ "columns":8,
+ "image":"Effect0.png",
+ "imageheight":416,
+ "imagewidth":128,
+ "margin":0,
+ "name":"Effect0",
+ "spacing":0,
+ "tilecount":208,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

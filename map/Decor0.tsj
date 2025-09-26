@@ -1,0 +1,14 @@
+{ "columns":8,
+ "image":"Decor0.png",
+ "imageheight":352,
+ "imagewidth":128,
+ "margin":0,
+ "name":"Decor0",
+ "spacing":0,
+ "tilecount":176,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

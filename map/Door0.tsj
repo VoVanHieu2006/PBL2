@@ -1,0 +1,14 @@
+{ "columns":8,
+ "image":"Door0.png",
+ "imageheight":96,
+ "imagewidth":128,
+ "margin":0,
+ "name":"Door0",
+ "spacing":0,
+ "tilecount":48,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

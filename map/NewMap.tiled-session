@@ -1,0 +1,194 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "BanDo1.tmj",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "BanDo.tmj": {
+            "scale": 1.6669531249999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 319.74504382059337,
+                "y": 159.8725219102967
+            }
+        },
+        "BanDo1.tmj": {
+            "expandedObjectLayers": [
+                3
+            ],
+            "scale": 1.5,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 294.99999999999994,
+                "y": 156.99999999999997
+            }
+        },
+        "BanDo2.tmj": {
+            "scale": 1.6669531249999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 319.74504382059337,
+                "y": 159.8725219102967
+            }
+        },
+        "Book.tsj": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "Chest0.tsj": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "Decor0.tsj": {
+            "scaleInDock": 3,
+            "scaleInEditor": 4
+        },
+        "Door0.tsj": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Door1.tsj": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Effect0.tsj": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Floor.tsj": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "Floor.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "MapNew.tmj": {
+            "scale": 1.6669531249999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 323.3444251769227,
+                "y": 197.0661292590336
+            }
+        },
+        "MapNew.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 107.5,
+                "y": 347.5
+            }
+        },
+        "Rogue.tsj": {
+            "scaleInDock": 4,
+            "scaleInEditor": 1
+        },
+        "San.tsj": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tuong.tsj": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Wall.tsj": {
+            "dynamicWrapping": false,
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "Wall.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "old/Chest0.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Decor1.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Door0.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Door1.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Effect0.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Floor.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Rogue.tsx": {
+            "scaleInDock": 1
+        },
+        "old/Wall2.tsx": {
+            "scaleInDock": 1
+        },
+        "old/mapReal.tmx": {
+            "scale": 1.6669531249999998,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 319.7450438205934,
+                "y": 159.87252191029668
+            }
+        },
+        "old/mapTest.tmx": {
+            "scale": 0.8334765624999999,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 639.4900876411868,
+                "y": 319.74504382059337
+            }
+        },
+        "old/mapTest.tmx#Wall": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/Acer/Desktop/PBL2/map",
+    "last.imagePath": "C:/Users/Acer/Desktop/PBL2/map",
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "json",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 40,
+    "openFiles": [
+        "MapNew.tmx",
+        "San.tsj",
+        "Tuong.tsj",
+        "BanDo.tmj",
+        "Door0.tsj",
+        "Book.tsj",
+        "Chest0.tsj",
+        "Rogue.tsj",
+        "Effect0.tsj",
+        "Door1.tsj",
+        "Decor0.tsj",
+        "BanDo1.tmj",
+        "BanDo2.tmj"
+    ],
+    "project": "NewMap.tiled-project",
+    "recentFiles": [
+        "MapNew.tmx",
+        "San.tsj",
+        "Tuong.tsj",
+        "BanDo.tmj",
+        "Door0.tsj",
+        "Book.tsj",
+        "Chest0.tsj",
+        "Rogue.tsj",
+        "Effect0.tsj",
+        "Door1.tsj",
+        "Decor0.tsj",
+        "BanDo2.tmj"
+    ],
+    "tileset.lastUsedFormat": "json",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

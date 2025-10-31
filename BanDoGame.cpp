@@ -17,6 +17,9 @@ BanDoGame::BanDoGame(){
     BanDo_.GidKetThucCuaKhoa_= -1;
     BanDo_.GidBatDauCuaMo_ = -1;   // Door1.tsj (mở)
     BanDo_.GidKetThucCuaMo_ = -1;
+
+    BanDo_.GidBatDauCuaBoss_ = -1;
+    BanDo_.GidKetThucCuaBoss_ = -1;
 }
 
 BanDoGame::~BanDoGame(){
@@ -120,11 +123,6 @@ void BanDoGame::TaiDuLieuBanDo(const json& DuLieuJson) {
 
     }
 
-
-    
-
-
-
 }
 
 
@@ -176,6 +174,7 @@ void BanDoGame::TaiCacBoKhoi(const json& DuLieuJson, SDL_Renderer* ManHinh) {
             cout << "PHAT HIEN TUONG TU GID: " << BanDo_.GidBatDauCuaSach_ << " DEN " << BanDo_.GidKetThucCuatSach_ << endl;
         }
 
+        // Xử lý cửa
         if (DuongDanDayDuToiTsj == "map/Door0.tsj"){
             BanDo_.GidBatDauCuaKhoa_ = BoKhoiMoi->firstgid_;
             int SoLuongKhoiTrongBoKhoi = DuLieuBoKhoiJson["tilecount"];
@@ -186,7 +185,11 @@ void BanDoGame::TaiCacBoKhoi(const json& DuLieuJson, SDL_Renderer* ManHinh) {
             BanDo_.GidKetThucCuaMo_ = BoKhoiMoi->firstgid_ + SoLuongKhoiTrongBoKhoi - 1;
         }
 
-
+        if (DuongDanDayDuToiTsj == "map/Rogue.tsj"){
+        BanDo_.GidBatDauCuaBoss_ = BoKhoiMoi->firstgid_;
+        int SoLuongKhoiTrongBoKhoi = DuLieuBoKhoiJson["tilecount"];
+        BanDo_.GidKetThucCuaBoss_ = BoKhoiMoi->firstgid_ + SoLuongKhoiTrongBoKhoi - 1;
+        }
 
 
 
@@ -374,15 +377,30 @@ bool BanDoGame::LaCuaKhoa(const int& Gid) const{
     return (Gid >= BanDo_.GidBatDauCuaKhoa_ && Gid <= BanDo_.GidKetThucCuaKhoa_);
 }
 
-void BanDoGame::MoTatCaCuaTrenTatCaLop(){
+bool BanDoGame::LaCuaMo(const int& Gid) const{
+    if (BanDo_.GidBatDauCuaMo_ == -1){
+        cout << "KHONG CO CUA MO NAO CA" << endl;
+        return false;
+    }
+    return (Gid >= BanDo_.GidBatDauCuaMo_ && Gid <= BanDo_.GidKetThucCuaMo_);
+}
+
+bool BanDoGame::LaKhoiBoss(const int& Gid) const {
+    if (BanDo_.GidBatDauCuaBoss_ == -1) return false;
+    return (Gid >= BanDo_.GidBatDauCuaBoss_ && Gid <= BanDo_.GidKetThucCuaBoss_);
+}
+
+
+void BanDoGame::MoCuaTroChoi2(){
     if (BanDo_.GidBatDauCuaKhoa_ == -1 || BanDo_.GidBatDauCuaMo_ == -1) {
         cout << "Chua co tileset cua Door0/Door1" << endl;;
         return;
     }
+    int GioiHanTroChoi2X = 10;
     const uint32_t GID_MASK = 0x1FFFFFFF; // đề phòng các khối xoay
     for (auto& Lop : BanDo_.DanhSachLopBanDo_){
         for (int y = 0; y < TOI_DA_MAP_Y; ++y){
-            for (int x = 0; x < TOI_DA_MAP_X; ++x){
+            for (int x = 0; x < GioiHanTroChoi2X; ++x){
                 unsigned int GidBanDau = Lop.Khoi_[y][x];
                 if (GidBanDau == 0) continue;
                 int GidDaXuLy = (GidBanDau & GID_MASK);
@@ -392,6 +410,61 @@ void BanDoGame::MoTatCaCuaTrenTatCaLop(){
                     Lop.Khoi_[y][x] = (unsigned int)GidCuaCuaMo; // không set flip
                 }
             }
+        }
+    }
+}
+
+
+void BanDoGame::KhoaCuaTroChoi1(SDL_Rect TRO_CHOI_1){
+    if (BanDo_.GidBatDauCuaKhoa_ == -1 || BanDo_.GidBatDauCuaMo_ == -1) {
+        cout << "Chua co tileset cua Door0/Door1" << endl;;
+        return;
+    }
+    const uint32_t GID_MASK = 0x1FFFFFFF; // đề phòng các khối xoay
+    for (auto& Lop : BanDo_.DanhSachLopBanDo_){
+        for (int y = TRO_CHOI_1.y; y < TRO_CHOI_1.y + TRO_CHOI_1.h; ++y){
+                unsigned int GidBanDau1 = Lop.Khoi_[y][TRO_CHOI_1.x - 1];
+                unsigned int GidBanDau2 = Lop.Khoi_[y][TRO_CHOI_1.x + TRO_CHOI_1.w];
+                int GidDaXuLy1 = (GidBanDau1 & GID_MASK);
+                int GidDaXuLy2 = (GidBanDau2 & GID_MASK);
+                if (LaCuaMo(GidDaXuLy1)){
+                    int IDCucBo = GidDaXuLy1 - BanDo_.GidBatDauCuaMo_;
+                    int GidCuaCuaKhoa = BanDo_.GidBatDauCuaKhoa_ + IDCucBo;
+                    Lop.Khoi_[y][TRO_CHOI_1.x - 1] = (unsigned int)GidCuaCuaKhoa; // không set flip
+                }
+                if (LaCuaMo(GidDaXuLy2)){
+                    int IDCucBo = GidDaXuLy2 - BanDo_.GidBatDauCuaMo_;
+                    int GidCuaCuaKhoa = BanDo_.GidBatDauCuaKhoa_ + IDCucBo;
+                    Lop.Khoi_[y][TRO_CHOI_1.x + TRO_CHOI_1.w] = (unsigned int)GidCuaCuaKhoa; // không set flip
+                }
+        }
+    }
+}
+
+
+void BanDoGame::MoCuaTroChoi1(SDL_Rect TRO_CHOI_1){
+    if (BanDo_.GidBatDauCuaKhoa_ == -1 || BanDo_.GidBatDauCuaMo_ == -1) {
+        cout << "Chua co tileset cua Door0/Door1" << endl;;
+        return;
+    }
+   
+    const uint32_t GID_MASK = 0x1FFFFFFF; // đề phòng các khối xoay
+    for (auto& Lop : BanDo_.DanhSachLopBanDo_){
+        for (int y = TRO_CHOI_1.y; y < TRO_CHOI_1.y + TRO_CHOI_1.h; ++y){
+                unsigned int GidBanDau1 = Lop.Khoi_[y][TRO_CHOI_1.x - 1];
+                unsigned int GidBanDau2 = Lop.Khoi_[y][TRO_CHOI_1.x + TRO_CHOI_1.w];
+                int GidDaXuLy1 = (GidBanDau1 & GID_MASK);
+                int GidDaXuLy2 = (GidBanDau2 & GID_MASK);
+                if (LaCuaKhoa(GidDaXuLy1)){
+                    int IDCucBo = GidDaXuLy1 - BanDo_.GidBatDauCuaKhoa_;
+                    int GidCuaCuaMo = BanDo_.GidBatDauCuaMo_ + IDCucBo;
+                    Lop.Khoi_[y][TRO_CHOI_1.x - 1] = (unsigned int)GidCuaCuaMo; // không set flip
+                }
+                if (LaCuaKhoa(GidDaXuLy2)){
+                    int IDCucBo = GidDaXuLy2 - BanDo_.GidBatDauCuaKhoa_;
+                    int GidCuaCuaMo = BanDo_.GidBatDauCuaMo_ + IDCucBo;
+                    Lop.Khoi_[y][TRO_CHOI_1.x + TRO_CHOI_1.w] = (unsigned int)GidCuaCuaMo; // không set flip
+                }
         }
     }
 }
@@ -429,7 +502,7 @@ void BanDoGame::XoaKhoi(int KhoiX, int KhoiY, int Lop){
 
 
 void BanDoGame::SinhSachNgauNhien(const string& TenLopSach, const string& DiaChiDanBoKhoi, int KhoiBatDauX, 
-                        int KhoiBatDauY, int ChieuRong , int ChieuCao, int SoLuongSach){
+                        int KhoiBatDauY, int ChieuRong , int ChieuCao, const int& SO_LUONG_SACH){
     // Tạo bộ sinh số ngẫu nhiên
 
 
@@ -467,9 +540,9 @@ void BanDoGame::SinhSachNgauNhien(const string& TenLopSach, const string& DiaChi
     }
 
 
-    int DanhSachSachDuocSinh[SoLuongSach];
+    int DanhSachSachDuocSinh[SO_LUONG_SACH];
     int ChiSoDanhSach = 0;
-    for (int i = 0; i < SoLuongSach; i++){
+    for (int i = 0; i < SO_LUONG_SACH; i++){
         int GidNgauNhien = rng() % SoSachTrongKhoi + GidBatDauKhoiSach + 1;
         DanhSachSachDuocSinh[ChiSoDanhSach++] = GidNgauNhien;
     }
@@ -480,7 +553,7 @@ void BanDoGame::SinhSachNgauNhien(const string& TenLopSach, const string& DiaChi
 
     vector<pair<int, int>> ToaDoViTriDaCoSach;
     int SoLuongDaSinh = 0;
-    while (SoLuongDaSinh <= SoLuongSach){
+    while (SoLuongDaSinh < SO_LUONG_SACH){
         int ToaDoSinhSach2D = rng() % DienTich;
         int ToaDoX = KhoiBatDauX + ToaDoSinhSach2D % ChieuRong;
         int ToaDoY = KhoiBatDauY + ToaDoSinhSach2D / ChieuRong;
@@ -493,3 +566,29 @@ void BanDoGame::SinhSachNgauNhien(const string& TenLopSach, const string& DiaChi
     }
 }
 
+
+
+void BanDoGame::HoanLaiSach(int x, int y, int IDCucBo){
+    for (auto &Lop : BanDo_.DanhSachLopBanDo_){
+        if (Lop.TenLop_ == "Sach"){
+            Lop.Khoi_[y][x] = IDCucBo;
+            break;
+        }   
+    }
+}
+
+
+bool BanDoGame::KiemTraVaChamVoiBoss(int tileX, int tileY) const {
+    
+    for (const auto& Lop : BanDo_.DanhSachLopBanDo_) {
+        Uint32 gid = Lop.Khoi_[tileY][tileX];
+        if (gid != 0) {
+            Uint32 gidDaXuLy = gid & 0x1FFFFFFF; // Bỏ flip bits
+            if (LaKhoiBoss(gidDaXuLy)) {
+                cout << "Tim thay boss tile! GID: " << gidDaXuLy << endl;
+                return true;
+            }
+        }
+    }
+    return false;
+}

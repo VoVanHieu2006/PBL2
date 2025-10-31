@@ -37,7 +37,7 @@ bool DoiTuong::TaiAnh(std::string DuongDan, SDL_Renderer* ManHinh){
 }
 
 
-void DoiTuong::Ve(SDL_Renderer* ManHinh, const SDL_Rect* GioiHan /*= NULL*/ ){
+void DoiTuong::Ve(SDL_Renderer* ManHinh, const SDL_Rect* GioiHan ){
     SDL_Rect ThongTinTrenManHinh {HinhChuNhat_ .x, HinhChuNhat_.y, HinhChuNhat_.w, HinhChuNhat_.h};
 
     SDL_RenderCopy(ManHinh, DoiTuong_, GioiHan, &ThongTinTrenManHinh);

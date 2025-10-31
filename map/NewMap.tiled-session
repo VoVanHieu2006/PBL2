@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "BanDo1.tmj",
+    "activeFile": "MapNew.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -20,11 +20,11 @@
             "expandedObjectLayers": [
                 3
             ],
-            "scale": 1.5,
-            "selectedLayer": 2,
+            "scale": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 294.99999999999994,
-                "y": 156.99999999999997
+                "x": 302,
+                "y": 159.75
             }
         },
         "BanDo2.tmj": {
@@ -77,11 +77,11 @@
             }
         },
         "MapNew.tmx": {
-            "scale": 1,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 107.5,
-                "y": 347.5
+                "x": 211.75,
+                "y": 124.25
             }
         },
         "Rogue.tsj": {
@@ -89,7 +89,7 @@
             "scaleInEditor": 1
         },
         "San.tsj": {
-            "scaleInDock": 1,
+            "scaleInDock": 0.75,
             "scaleInEditor": 1
         },
         "Tuong.tsj": {
@@ -173,18 +173,18 @@
     ],
     "project": "NewMap.tiled-project",
     "recentFiles": [
-        "MapNew.tmx",
-        "San.tsj",
-        "Tuong.tsj",
-        "BanDo.tmj",
-        "Door0.tsj",
-        "Book.tsj",
-        "Chest0.tsj",
-        "Rogue.tsj",
-        "Effect0.tsj",
-        "Door1.tsj",
+        "BanDo2.tmj",
+        "BanDo1.tmj",
         "Decor0.tsj",
-        "BanDo2.tmj"
+        "Door1.tsj",
+        "Effect0.tsj",
+        "Rogue.tsj",
+        "Chest0.tsj",
+        "Book.tsj",
+        "Door0.tsj",
+        "BanDo.tmj",
+        "Tuong.tsj",
+        "San.tsj"
     ],
     "tileset.lastUsedFormat": "json",
     "tileset.tileSize": {

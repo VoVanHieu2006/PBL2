@@ -4,18 +4,24 @@
 #include "HamChung.h"
 #include "DoiTuong.h"
 #include "BanDoGame.h"
-
 #include "RuongDo.h"
+#include "ThuatToan1.h"
+#include "AmThanh.h"
+
 
 #define SO_KHUNG_HINH 16
 #define SO_KHUNG_HINH_MOT_HANG 4
 #define KICH_THUOC_NHAN_VAT 32
-#define TOC_DO_NHAN_VAT 1
 
-#define VI_TRI_BAN_DAU_X 1216;
-#define VI_TRI_BAN_DAU_Y 608;
-
+#define VI_TRI_BAN_DAU_X  1216
+#define VI_TRI_BAN_DAU_Y  608
 #define TOC_DO_PIXEL_MOT_GIAY 160       // tốc độ di chuyển theo pixel/giây (đi 1 ô = KICH_THUOC_KHOI pixel)
+
+
+
+
+
+
 
 struct Input{
     int Trai_;
@@ -29,9 +35,9 @@ struct Input{
 enum HuongDi{
     KHONG_CO_HUONG = -1,
     HUONG_DUOI = 0,
-    HUONG_TREN = 1,
-    HUONG_TRAI = 2,
-    HUONG_PHAI = 3
+    HUONG_TRAI = 1,
+    HUONG_PHAI = 2,
+    HUONG_TREN = 3
 };
 
 
@@ -50,7 +56,9 @@ struct Character{
 };
 
 
-class NhanVatGame : public DoiTuong{
+
+
+class NhanVatGame{
 public:
     NhanVatGame();
     ~NhanVatGame();
@@ -68,7 +76,7 @@ public:
 
     void BatDauMotBuoc(int dx, int dy, HuongDi Huong, const BanDoGame& BanDo);
     void TrongQuaTrinhDi(const BanDoGame& BanDo);
-    void KetThucBuoc();
+    void KetThucBuoc(const BanDoGame& BanDo);
 
     // ----------- Vẽ nhân vật -----------
 
@@ -91,8 +99,35 @@ public:
     void VeThongBaoDaHoanThanh(SDL_Renderer* ManHinh, TTF_Font* Font);
 
     
+    // ----------- Hệ THỐNG GAME 1  -------------
+    void KhoiTaoHeThongBuocDi(int SoLuongSach, const SDL_Rect& VungTroChoi, const BanDoGame& BanDo);
+    void CapNhatBuocDi(const ToaDo& ViTriMoi, const BanDoGame& BanDo);
+    void HoanLaiBuocDi(const BanDoGame& BanDo);
+    void BatTatGoiY() { DangHienThiGoiY_ = !DangHienThiGoiY_; }
+    
+    // Vẽ UI bước đi và các nút
+    bool NamTrongTroChoi1();
+    void KiemTraMoCuaTroChoi1(BanDoGame& BanDo);
+    void VeThongTinBuocDi(SDL_Renderer* ManHinh, TTF_Font* Font);
+    void VeDuongDiGoiY(SDL_Renderer* ManHinh, const BanDoGame& BanDo);
+    void VeCacNutDieuKhien(SDL_Renderer* ManHinh, TTF_Font* Font);
+    void VeTroChoi1(SDL_Renderer* ManHinh, TTF_Font* Font, const BanDoGame& BanDo);
+    
+    // Xử lý click nút
+    bool XuLyClickNutDieuKhien(int mouseX, int mouseY, const BanDoGame& BanDo);
+    void BatDauNhapNhay();
+    void CapNhatNhapNhay();
 
-private:
+
+    int ThongTinViTriX() const { return NhanVat_.ViTriNhanVatX_; }
+    int ThongTinViTriY() const { return NhanVat_.ViTriNhanVatY_; }
+    void ResetViTri() { 
+        NhanVat_.ViTriNhanVatX_ = 8 * 32;
+        NhanVat_.ViTriNhanVatY_ = 8 * 32;
+        DangDiDenO_ = false;
+    }
+
+protected:
     Character NhanVat_;
 
     Input DauVao_; 
@@ -132,9 +167,55 @@ private:
     bool DaMoCua_; // Dùng để đánh dấu mở cửa khi xong trò chơi
     
 
+
+    // ==================== Hệ thống game nhặt sách ====================
+    bool DaDongCuaTroChoi1_;
+    bool KetThucTroChoi1_;
+    
+
+    long long SoBuocDaDi_;              // số bước đã đi
+    long long GioiHanBuoc_;             // giới hạn bước cho phép
+    vector<pair<ToaDo, int>> LichSuDuongDi_; // lưu lại đường đi để có thể quay lại
+    // Tọa độ thì sẽ lưu tọa độ, int sẽ lưu id cục bộ của sách khi bị ăn
+    bool DaCapNhat_;
+    
+    
+    // === HỆ THỐNG GỢI Ý ĐƯỜNG ĐI ===
+    bool DangHienThiGoiY_;        // có đang hiện gợi ý không
+    vector<ToaDo> DuongDiGoiY_;   // đường đi gợi ý
+
+    
+    // === VỊ TRÍ ĐIỂM BẮT ĐẦU VÀ KẾT THÚC ===
+    ToaDo DiemBatDau_;            // vị trí spawn nhân vật
+    ToaDo DiemKetThuc_;           // vị trí cửa/đích
+    vector<ToaDo> CacDiemSach_;
+
+    SDL_Rect NutGoiY_;
+    SDL_Rect NutHoanLai_;
+    SDL_Rect TRO_CHOI_1_;
+
+
+    // === BỔ SUNG: HIỆU ỨNG NHẤP NHÁY CHO NÚT HOÀN LẠI ===
+    bool DangNhapNhay_;
+    Uint32 ThoiGianBatDauNhapNhay_;
+    Uint32 ThoiGianNhapNhay_;  // thời gian nhấp nháy (ms)
+    int SoLanNhapNhay_;       // số lần nhấp nháy
+    int DemNhapNhay_;         // đếm số lần đã nhấp nháy
+
+
+    // ====================================================================================================
+    // =============================== THUẬT TOÁN TÌM ĐƯỜNG ===============================================
+    // ====================================================================================================
+
+    
+
+    void TimDuongDiOptimal(const BanDoGame& BanDo);
+                                    
+    // ===========================================================================================
+
+
+
+
 };
-
-
-
 
 #endif

@@ -6,7 +6,6 @@
 
 
 
-#define KICH_THUOC_KHOI 32
 #define TOI_DA_MAP_X 40
 #define TOI_DA_MAP_Y 20
 
@@ -53,6 +52,9 @@ struct Map{
     int GidKetThucCuaKhoa_;
     int GidBatDauCuaMo_;   // Door1.tsj (mở)
     int GidKetThucCuaMo_;
+    
+    int GidBatDauCuaBoss_;
+    int GidKetThucCuaBoss_;
 };
 
 
@@ -72,7 +74,7 @@ struct BoKhoi {
 
 
 
-class BanDoGame : public DoiTuong{
+class BanDoGame{
 public:
     BanDoGame();
     ~BanDoGame();
@@ -103,15 +105,27 @@ public:
     bool LaKhoiSach(const int& Gid) const;
 
     bool LaCuaKhoa(const int& Gid) const;
-    void MoTatCaCuaTrenTatCaLop(); // mở cửa
+    bool LaCuaMo(const int& Gid) const;
+    //================== BOSSS==================
+    bool LaKhoiBoss(const int& Gid) const;
+    bool KiemTraVaChamVoiBoss(int tileX, int tileY) const ;
+
+    void KhoaCuaTroChoi1(SDL_Rect TRO_CHOI_1);
+    void MoCuaTroChoi1(SDL_Rect TRO_CHOI_1);
+
+    void MoCuaTroChoi2(); // mở cửa
+
 
 
     // Lấy Gid và khối của lớp 
     Uint32 LayGid(int KhoiX, int KhoiY, int Lop) const;
     void XoaKhoi(int KhoiX, int KhoiY, int Lop);
 
-    void SinhSachNgauNhien(const string& TenLopSach,const string& DiaChiDanBoKhoi, int KhoiBatDauX, int KhoiBatDauY, int ChieuRong, int ChieuCao, int SoLuongSach);
+    void SinhSachNgauNhien(const string& TenLopSach,const string& DiaChiDanBoKhoi, int KhoiBatDauX, int KhoiBatDauY, int ChieuRong, int ChieuCao, const int& SO_LUONG_SACH);
    
+
+    // GAME 1:
+    void HoanLaiSach(int x, int y, int IDCucBo);
 private:
 
     Map BanDo_; // Vẫn giữ lại để chứa mảng 2D các con số (GID)

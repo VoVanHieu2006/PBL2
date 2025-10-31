@@ -3,13 +3,17 @@
 
 #include "HamChung.h"
 #include "BanDoGame.h"
-#include <map>
-#include <vector>
-#include <string>
+#include "ThuatToan2.h"
+
+#define SO_LUONG_SACH_GOI_Y_TOI_DA 5
+#define THOI_GIAN_CHO_MOI_CUON_SACH 3
+
 
 class RuongDo{
 public:
+
     RuongDo();
+    ~RuongDo();
 
     // 1) Gắn tham chiếu dữ liệu bên ngoài (không sở hữu)
     //    - TuiSach: map<localID, soLuong>
@@ -28,6 +32,7 @@ public:
     void RandomSachCanNhap();
 
     // 5) Vẽ UI hộp nhập
+    void VeGameOver(SDL_Renderer* ManHinh, TTF_Font* Font);
     void Ve(SDL_Renderer* ManHinh, TTF_Font* Font, const int& SO_LUONG_SACH);
 
     // 6) Trạng thái
@@ -43,9 +48,14 @@ public:
 
     int TimLocalIDTheoTenSach(const string& TenSachChuaChuanHoa) const;
 
+    // ================== HỆ THỐNG GỢI Ý ===============
+    void CapNhatGoiY();
+    void CapNhatThoiGian();
+
 private:
     // Dữ liệu bên ngoài (KHÔNG sở hữu)
     map<int,int>* TuiSach_ ;
+    map<int, int> TuiSachTam_;
     const vector<string>* DanhSachTenSach_ ;
 
     // Trạng thái mini-game
@@ -60,6 +70,23 @@ private:
     string ThongBaoLoi_;      // lỗi hiển thị dưới ô nhập
 
     bool HoanThanhThuTu_ ;
+
+    // ================== HỆ THỐNG GỢI Ý ===============
+    bool DangHienThiGameOver_;
+    bool DangNhapSoGoiY_;
+    // THÊM: Hệ thống gợi ý và bộ đếm thời gian
+    TrieGoiY* Cay_;
+    int ChiSoGoiYDangChon_;
+    vector<string> CacGoiY_;
+    
+    // Bộ đếm thời gian
+    Uint32 ThoiGianBatDau_;
+    Uint32 ThoiGianConLai_;  // tính bằng giây
+    Uint32 ThoiGianBanDau_;
+    bool DaHetGio_;
+        
+
+
 };
 
 #endif

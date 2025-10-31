@@ -27,6 +27,10 @@ NhanVatGame::NhanVatGame(){
     ThoiGianTichLuyAnimation_ = 0;
     KhoiTaoDanhSachTenSach();
 
+    DauVao_.Trai_ = 0;
+    DauVao_.Phai_ = 0;
+    DauVao_.Tren_ = 0;
+    DauVao_.Duoi_ = 0;
 
     // Túi đồ
     HienThiTuiDo_ = false;
@@ -39,6 +43,40 @@ NhanVatGame::NhanVatGame(){
     YeuCauMoRuong_ = false;
     HienThiThongBaoDaHoanThanh_ = false;
     DaMoCua_ = false;
+
+    // GAME 1
+    TRO_CHOI_1_ = {14, 1, 22, 18};
+    GioiHanBuoc_ = 0;
+    LichSuDuongDi_.clear();
+    
+    // === KHỞI TẠO HỆ THỐNG GỢI Ý ===
+    DangHienThiGoiY_ = false;
+    DuongDiGoiY_.clear();
+    NutGoiY_ = {CHIEU_RONG_MAN_HINH - 220, 5, 100, 30};
+    NutHoanLai_ = {CHIEU_RONG_MAN_HINH - 110, 5, 100, 30};
+    
+    // === VỊ TRÍ MẶC ĐỊNH ===
+    DaDongCuaTroChoi1_ = false;
+    KetThucTroChoi1_ = false;
+    CacDiemSach_.clear();
+    DaCapNhat_ = false;
+
+    DiemBatDau_ = ToaDo(35, 16);
+    DiemKetThuc_ = ToaDo(14, 4);
+
+    DangNhapNhay_ = false;
+    ThoiGianBatDauNhapNhay_ = 0;
+    ThoiGianNhapNhay_ = 150;  // mỗi lần nhấp nháy 150ms
+    SoLanNhapNhay_ = 1;       // nhấp nháy 4 lần
+    DemNhapNhay_ = 0;
+
+    // ====================================================================================================
+    // =============================== THUẬT TOÁN TÌM ĐƯỜNG ===============================================
+    // ====================================================================================================
+    
+
+
+    // ====================================================================================================
 }
 
 void NhanVatGame::KhoiTaoDanhSachTenSach(){
@@ -165,10 +203,19 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
         return; // chặn mọi hành động khác (di chuyển, mở túi...)
     }
 
+
+    // === XỬ LÝ CLICK NÚT ĐIỀU KHIỂN ===
+    if (SuKien.type == SDL_MOUSEBUTTONDOWN && SuKien.button.button == SDL_BUTTON_LEFT) {
+        if (XuLyClickNutDieuKhien(SuKien.button.x, SuKien.button.y, BanDo)) {
+            return;
+        }
+    }
+
     if (HienThiTuiDo_){
         int SoLuongSachDangCo = (int)TuiSach_.size();
         if (SuKien.type == SDL_KEYDOWN){
             if (SuKien.key.keysym.sym == SDLK_ESCAPE || SuKien.key.keysym.sym == SDLK_i){
+                AmThanhGame->PhatHieuUngAmThanh(SFX_MO_TUI_DO);
                 HienThiTuiDo_ = false;
                 return;
             }
@@ -194,11 +241,13 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
             DauVao_.Tren_ = 0;
             DauVao_.Duoi_ = 0;
             YeuCauMoRuong_ = true;
+            AmThanhGame->PhatHieuUngAmThanh(SFX_MO_RUONG);
             
         }
 
         if (SuKien.key.keysym.sym == SDLK_i){ // Toggle túi đồ
-            HienThiTuiDo_ = !HienThiTuiDo_; // chuyển trạng thái túi đồ
+            HienThiTuiDo_ = true; // chuyển trạng thái túi đồ
+            AmThanhGame->PhatHieuUngAmThanh(SFX_MO_TUI_DO);
         }
 
         
@@ -206,7 +255,8 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
         switch(SuKien.key.keysym.sym){
 
             case SDLK_RIGHT:
-            {
+            {   
+                
                 DauVao_.Phai_ = 1;
                 DauVao_.Trai_ = 0;
                 DauVao_.Tren_ = 0;
@@ -217,6 +267,7 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
             
             case SDLK_LEFT:
             {
+ 
                 DauVao_.Phai_ = 0;
                 DauVao_.Trai_ = 1;
                 DauVao_.Tren_ = 0;
@@ -227,6 +278,7 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
 
             case SDLK_UP:
             {
+                
                 DauVao_.Phai_ = 0;
                 DauVao_.Trai_ = 0;
                 DauVao_.Tren_ = 1;
@@ -236,6 +288,7 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
             
             case SDLK_DOWN:
             {
+                
                 DauVao_.Phai_ = 0;
                 DauVao_.Trai_ = 0;
                 DauVao_.Tren_ = 0;
@@ -284,13 +337,14 @@ void NhanVatGame::HanhDongDauVao(SDL_Event SuKien, SDL_Renderer *ManHinh, const 
 void NhanVatGame::XuLyDiChuyen(const BanDoGame& BanDo){
     BanDoGame& BanDoGameTam = const_cast<BanDoGame&>(BanDo);
     if (DangDiDenO_){
-        TrongQuaTrinhDi(BanDo);  
-
-        
-        ThuThapSach(BanDoGameTam);
-
+        TrongQuaTrinhDi(BanDo);
+        if (DaCapNhat_){
+            ThuThapSach(BanDoGameTam);  
+            DaCapNhat_ = false;
+        }
     }
     else{
+        
         if (DauVao_.Trai_) BatDauMotBuoc(-1, 0, HUONG_TRAI, BanDo);
         else if (DauVao_.Phai_) BatDauMotBuoc(1, 0, HUONG_PHAI, BanDo);
         else if (DauVao_.Tren_) BatDauMotBuoc(0, -1, HUONG_TREN, BanDo);
@@ -305,7 +359,8 @@ void NhanVatGame::XuLyDiChuyen(const BanDoGame& BanDo){
             if (Ruong_.HoanThanh()){
                 HienThiThongBaoDaHoanThanh_ = true;
                 if (!DaMoCua_){
-                    BanDoGameTam.MoTatCaCuaTrenTatCaLop();
+                    AmThanhGame->PhatHieuUngAmThanh(SFX_MO_CUA);
+                    BanDoGameTam.MoCuaTroChoi2();
                     DaMoCua_ = true;
                 }
             }
@@ -330,6 +385,9 @@ void NhanVatGame::XuLyDiChuyen(const BanDoGame& BanDo){
 
 void NhanVatGame::BatDauMotBuoc(int dx, int dy, HuongDi Huong, const BanDoGame& BanDo){
     if (DangDiDenO_) return;
+    AmThanhGame->DatAmLuongHieuUng(50);
+    AmThanhGame->PhatHieuUngAmThanh(SFX_DI_CHUYEN);
+    AmThanhGame->DatAmLuongHieuUng(96);
     
     XuatPhatX_ = NhanVat_.ViTriNhanVatX_;
     XuatPhatY_ = NhanVat_.ViTriNhanVatY_;
@@ -356,7 +414,19 @@ void NhanVatGame::BatDauMotBuoc(int dx, int dy, HuongDi Huong, const BanDoGame& 
     }
     if (CoChan) return;
 
-
+    // === CẬP NHẬT BƯỚC ĐI === MỚIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+    ToaDo ViTriMoi(DichDenX_ / KICH_THUOC_KHOI, DichDenY_ / KICH_THUOC_KHOI);
+    
+    // Kiểm tra giới hạn bước trước khi di chuyển
+    SDL_Rect TRO_CHOI_1 = {14, 1, 22, 18};
+    if (ViTriMoi.x >= TRO_CHOI_1.x && ViTriMoi.x < TRO_CHOI_1.x + TRO_CHOI_1.w &&
+        ViTriMoi.y >= TRO_CHOI_1.y && ViTriMoi.y < TRO_CHOI_1.y + TRO_CHOI_1.h) {
+        
+        if (SoBuocDaDi_ >= GioiHanBuoc_ && GioiHanBuoc_ != 999) {
+            cout << "KHONG THE DI CHUYEN - DA HET BUOC" << endl;
+            return; // Không cho phép di chuyển
+        }
+    }
 
 
     float ThoiGianGiayTam = (float) KICH_THUOC_KHOI / (float) TOC_DO_PIXEL_MOT_GIAY;
@@ -367,6 +437,11 @@ void NhanVatGame::BatDauMotBuoc(int dx, int dy, HuongDi Huong, const BanDoGame& 
 
     NhanVat_.Huong_ = Huong;
     DangDiDenO_ = true;
+
+
+
+
+    
     
 }
 
@@ -387,17 +462,23 @@ void NhanVatGame::TrongQuaTrinhDi(const BanDoGame& BanDo){
     if (KhungHinhHienTai > SO_KHUNG_HINH_MOT_HANG) KhungHinhHienTai = SO_KHUNG_HINH_MOT_HANG - 1;
     NhanVat_.KhungHinh_ = KhungHinhHienTai;
     if(TienDo > 1.0){
-        KetThucBuoc();
+        KetThucBuoc(BanDo);
     }
     
 }
 
 
-void NhanVatGame::KetThucBuoc(){
+void NhanVatGame::KetThucBuoc(const BanDoGame& BanDo){
+    
+    // === CẬP NHẬT BƯỚC ĐI KHI DI CHUYỂN XONG ===
+    ToaDo ViTriMoi(DichDenX_ / KICH_THUOC_KHOI, DichDenY_ / KICH_THUOC_KHOI);
+    CapNhatBuocDi(ViTriMoi, BanDo);
+    
     NhanVat_.ViTriNhanVatX_ = DichDenX_;
     NhanVat_.ViTriNhanVatY_ = DichDenY_;
     DangDiDenO_ = false;
     NhanVat_.KhungHinh_ = 0;
+    
 }
 
 // ========================
@@ -418,12 +499,16 @@ void NhanVatGame::ThuThapSach(BanDoGame& BanDoTam){
         if (BanDoTam.LaKhoiSach(Gid)){
             int IDCucBo = Gid - ThongTinBanDoTam.GidBatDauCuaSach_;
             if (IDCucBo >= 0){
+                AmThanhGame->PhatHieuUngAmThanh(SFX_NHAT_SACH);
                 TuiSach_[IDCucBo]++;   // tăng số lượng
                 BanDoTam.XoaKhoi(KhoiX, KhoiY, Lop); // xóa tile
+                KiemTraMoCuaTroChoi1(BanDoTam);
                 cout << "DA AN SACH" << endl;
             }
         }
     }
+
+    
 }
 
 const DoiTuongTuongTac* NhanVatGame::VaChamDoiTuongTuongTac(const BanDoGame& BanDo){
@@ -446,6 +531,389 @@ const DoiTuongTuongTac* NhanVatGame::VaChamDoiTuongTuongTac(const BanDoGame& Ban
 }
 
 
+// ===========================
+// === HỆ THỐNG BƯỚC ĐI ======      
+// ===========================
+
+void NhanVatGame::KhoiTaoHeThongBuocDi(int SoLuongSach, const SDL_Rect& VungTroChoi, const BanDoGame& BanDo) {
+    SoBuocDaDi_ = -1;
+    LichSuDuongDi_.clear();
+    CacDiemSach_.clear();
+    
+    
+    // Thêm vị trí hiện tại vào lịch sử
+    ToaDo ViTriHienTai(NhanVat_.ViTriNhanVatX_ / KICH_THUOC_KHOI, 
+                       NhanVat_.ViTriNhanVatY_ / KICH_THUOC_KHOI);
+
+
+    
+    // === TÍNH TOÁN ĐƯỜNG ĐI OPTIMAL NGAY KHI KHỞI TẠO ===
+
+    cout << "Tinh toan duong di optimal khi khoi tao game..." << endl;
+    TimDuongDiOptimal(BanDo);
+    cout << "Set gioi han buoc tam thoi: " << GioiHanBuoc_ << " cho " << SoLuongSach << " sach" << endl;
+
+    
+}
+
+void NhanVatGame::CapNhatBuocDi(const ToaDo& ViTriMoi, const BanDoGame& BanDo) {
+    // Kiểm tra có trong vùng giới hạn không
+    if (ViTriMoi.x >= TRO_CHOI_1_.x && ViTriMoi.x < TRO_CHOI_1_.x + TRO_CHOI_1_.w &&
+        ViTriMoi.y >= TRO_CHOI_1_.y && ViTriMoi.y < TRO_CHOI_1_.y + TRO_CHOI_1_.h) {
+        
+        SoBuocDaDi_++;
+
+        Map BanDoTam = BanDo.ThongTinBanDo();
+        for (auto &Lop : BanDoTam.DanhSachLopBanDo_){
+            if (Lop.TenLop_ == "Sach"){
+                if (Lop.Khoi_[ViTriMoi.y][ViTriMoi.x] != 0){
+                    LichSuDuongDi_.push_back(make_pair(ViTriMoi, Lop.Khoi_[ViTriMoi.y][ViTriMoi.x]));
+                }
+                else{
+                    LichSuDuongDi_.push_back(make_pair(ViTriMoi, 0));
+                }
+                DaCapNhat_ = true;
+                break;
+            }   
+        }
+        
+        cout << "Buoc di: " << SoBuocDaDi_ << "/" << GioiHanBuoc_ << endl;
+        if (SoBuocDaDi_ >= GioiHanBuoc_ && GioiHanBuoc_ != 999) {
+            cout << "DA HET BUOC DI!" << endl;
+        }
+    }
+}
+
+void NhanVatGame::HoanLaiBuocDi(const BanDoGame& BanDo){
+    if (LichSuDuongDi_.size() <= 1) {
+        cout << "KHONG THE HOAN LAI DA O VI TRI XUAT PHAT" << endl;
+        return;
+    }
+    
+    // Xóa vị trí hiện tại
+    ToaDo ViTriCu = LichSuDuongDi_.back().first;
+    int IDCucBo = LichSuDuongDi_.back().second;
+    LichSuDuongDi_.pop_back();
+    SoBuocDaDi_--;
+    
+
+    if (IDCucBo != 0) {
+        BanDoGame& BanDoGameTam = const_cast<BanDoGame&>(BanDo);
+        
+        // Khôi phục sách lên bản đồ
+        BanDoGameTam.HoanLaiSach(ViTriCu.x, ViTriCu.y, IDCucBo);
+        
+        // Trừ sách khỏi túi
+        Map ThongTinBanDo = BanDoGameTam.ThongTinBanDo();
+        int IDCucBoCanTru = IDCucBo - ThongTinBanDo.GidBatDauCuaSach_;
+        
+        if (TuiSach_.count(IDCucBoCanTru) && TuiSach_[IDCucBoCanTru] > 0) {
+            TuiSach_[IDCucBoCanTru]--;
+            if (TuiSach_[IDCucBoCanTru] == 0) {
+                TuiSach_.erase(IDCucBoCanTru);
+            }
+            cout << "DA TRU SACH KHOI TUI: IDCucBo=" << IDCucBoCanTru << endl;
+        }
+    }
+
+    // Lấy vị trí trước đó
+    ToaDo ViTriTruoc = LichSuDuongDi_.back().first;
+    
+    // Di chuyển nhân vật về vị trí đó
+    NhanVat_.ViTriNhanVatX_ = ViTriTruoc.x * KICH_THUOC_KHOI;
+    NhanVat_.ViTriNhanVatY_ = ViTriTruoc.y * KICH_THUOC_KHOI;
+
+    
+    cout << "HOAN LAI BUOC DI VI TRI: (" << ViTriTruoc.x << ", " << ViTriTruoc.y << ")" << endl;
+}
+
+
+// ====================================================================================================
+// =============================== THUẬT TOÁN TÌM ĐƯỜNG ===============================================
+// ====================================================================================================
+
+
+// ==================================================================================
+// HÀM TỐI ƯU - BỘ ĐIỀU KHIỂN CHÍNH
+// ==================================================================================
+void NhanVatGame::TimDuongDiOptimal(const BanDoGame& BanDo) {
+    int so_hang, so_cot;
+    so_hang = TRO_CHOI_1_.h;
+    so_cot = TRO_CHOI_1_.w;
+    Map BanDoToaDo = BanDo.ThongTinBanDo();
+    LopBanDo* LopCanTim = nullptr;
+    for (auto &Lop : BanDoToaDo.DanhSachLopBanDo_){
+        if (Lop.TenLop_ == "Sach"){
+            LopCanTim = &Lop;
+            break;
+        }
+    }
+    if (LopCanTim == nullptr) {
+        cout << "KHONG TIM THAY LOP SACH!" << endl;
+        GioiHanBuoc_ = 50;
+        return;
+    }
+
+    vector<string> luoi(so_hang);
+    vector<ToaDo> cac_tram_trong_vung; // THÊM DÒNG NÀY
+
+    for (int i = 0; i < so_hang; i++) {
+        string SauTam = "";
+        for (int j = 0; j < so_cot; j++){
+            int map_y = TRO_CHOI_1_.y + i;
+            int map_x = TRO_CHOI_1_.x + j;
+            
+            if (map_y >= TOI_DA_MAP_Y || map_x >= TOI_DA_MAP_X || map_y < 0 || map_x < 0) {
+                SauTam.push_back('0');
+                continue;
+            }
+            
+            if (DiemBatDau_.x == map_x && DiemBatDau_.y == map_y) {
+                SauTam.push_back('D');
+            }
+            else if (DiemKetThuc_.x == map_x && DiemKetThuc_.y == map_y) {
+                SauTam.push_back('D');
+            }
+            else if ((*LopCanTim).Khoi_[map_y][map_x] == 0) {
+                SauTam.push_back('0');
+            }
+            else {
+                SauTam.push_back('1');
+                // THÊM DÒNG NÀY: Thu thập tọa độ local của trạm
+                cac_tram_trong_vung.push_back(ToaDo(j, i));
+            }
+        }
+        luoi[i] = SauTam;
+    }
+
+    // CHUYỂN ĐỔI TỌA ĐỘ TỪ MAP THỰC SANG LOCAL
+    ToaDo start_local(DiemBatDau_.x - TRO_CHOI_1_.x, DiemBatDau_.y - TRO_CHOI_1_.y);
+    ToaDo end_local(DiemKetThuc_.x - TRO_CHOI_1_.x, DiemKetThuc_.y - TRO_CHOI_1_.y);
+
+    cout << "Diem bat dau local: (" << start_local.x << ", " << start_local.y << ")" << endl;
+    cout << "Diem ket thuc local: (" << end_local.x << ", " << end_local.y << ")" << endl;
+    cout << "So tram: " << cac_tram_trong_vung.size() << endl;
+
+    // Tìm các điểm D trong lưới để kiểm tra
+    vector<ToaDo> diem_D;
+    for (int i = 0; i < so_hang; ++i) {
+        for (int j = 0; j < so_cot; ++j) {
+            if (luoi[i][j] == 'D') {
+                diem_D.push_back(ToaDo(j, i));
+                cout << "Tim thay D tai: (" << j << ", " << i << ")" << endl;
+            }
+        }
+    }
+    
+    if (diem_D.size() != 2) {
+        cerr << "Loi: Phai co dung 2 diem 'D'. Hien tai co: " << diem_D.size() << endl;
+        GioiHanBuoc_ = 50;
+        return;
+    }
+    
+    // GỌI THUẬT TOÁN VỚI TỌA ĐỘ LOCAL ĐÚNG
+    ThuatToan1 ThuatToanChinh;
+    pair<long long, vector<ToaDo>> KetQua = ThuatToanChinh.GiaiToanBaiToan(
+        luoi, 
+        start_local,     // Tọa độ local
+        end_local,       // Tọa độ local  
+        cac_tram_trong_vung  // Tọa độ local của các trạm
+    );
+    
+    GioiHanBuoc_ = (int)KetQua.first;
+    
+    // CHUYỂN ĐỔI ĐƯỜNG ĐI TỪ LOCAL VỀ MAP THỰC
+    DuongDiGoiY_.clear();
+    for (const ToaDo& diem : KetQua.second) {
+        ToaDo diem_map_that(diem.x + TRO_CHOI_1_.x, diem.y + TRO_CHOI_1_.y);
+        DuongDiGoiY_.push_back(diem_map_that);
+    }
+    
+}
+
+
+
+// ===========================
+// === VẼ UI VÀ ĐIỀU KHIỂN ===
+// ===========================
+
+
+bool NhanVatGame::NamTrongTroChoi1(){
+    if (NhanVat_.ViTriNhanVatX_ / KICH_THUOC_KHOI >= TRO_CHOI_1_.x && NhanVat_.ViTriNhanVatX_ / KICH_THUOC_KHOI < TRO_CHOI_1_.x + TRO_CHOI_1_.w &&
+        NhanVat_.ViTriNhanVatY_ / KICH_THUOC_KHOI >= TRO_CHOI_1_.y && NhanVat_.ViTriNhanVatY_ / KICH_THUOC_KHOI < TRO_CHOI_1_.y + TRO_CHOI_1_.h) 
+        return true;
+    else return false;
+}
+
+void NhanVatGame::KiemTraMoCuaTroChoi1(BanDoGame& BanDo){
+    if (!DaDongCuaTroChoi1_) return;
+    cout << "DANG KIEM TRA MO CUA" << endl;
+    // Đếm số sách còn lại trong vùng
+    int SoSachConLai = 0;
+    Map BanDoTam = BanDo.ThongTinBanDo();
+    
+    for (auto& Lop : BanDoTam.DanhSachLopBanDo_) {
+        if (Lop.TenLop_ == "Sach") {
+            for (int y = TRO_CHOI_1_.y; y < TRO_CHOI_1_.y + TRO_CHOI_1_.h; y++) {
+                for (int x = TRO_CHOI_1_.x; x < TRO_CHOI_1_.x + TRO_CHOI_1_.w; x++) {
+                    if (Lop.Khoi_[y][x] != 0) {
+                        SoSachConLai++;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    
+    // Nếu hết sách thì mở cửa
+    if (SoSachConLai == 0) {
+        AmThanhGame->PhatHieuUngAmThanh(SFX_MO_CUA);
+        BanDo.MoCuaTroChoi1(TRO_CHOI_1_);
+        cout << "DA MO CUA TRO CHOI 1 - HET SACH!" << endl;
+    }
+}
+
+
+void NhanVatGame::VeThongTinBuocDi(SDL_Renderer* ManHinh, TTF_Font* Font) {
+    
+    // Vẽ ô hiển thị số bước ở góc trên trái
+    SDL_Rect KhungBuocDi = {10, 10, 200, 50};
+    
+    // Nền
+    SDL_SetRenderDrawBlendMode(ManHinh, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ManHinh, 0, 0, 0, 150);
+    SDL_RenderFillRect(ManHinh, &KhungBuocDi);
+    
+    // Viền
+    SDL_SetRenderDrawColor(ManHinh, 255, 255, 255, 255);
+    SDL_RenderDrawRect(ManHinh, &KhungBuocDi);
+    
+    // Text
+    string TextBuocDi = "Bước đi: " + to_string(SoBuocDaDi_);
+    if (GioiHanBuoc_ != 999) {
+        TextBuocDi += "/" + to_string(GioiHanBuoc_);
+    }
+    
+    SDL_Color MauChu = (SoBuocDaDi_ >= GioiHanBuoc_ && GioiHanBuoc_ != 999) ? 
+                       SDL_Color{255, 0, 0, 255} : SDL_Color{255, 255, 255, 255};
+    
+    VeChu(ManHinh, Font, TextBuocDi, KhungBuocDi.x + 20, KhungBuocDi.y + 12, MauChu);
+}
+
+void NhanVatGame::VeDuongDiGoiY(SDL_Renderer* ManHinh, const BanDoGame& BanDo) {
+    if (!DangHienThiGoiY_ || DuongDiGoiY_.empty()) return;
+    
+    // Vẽ đường màu đỏ nhạt
+    SDL_SetRenderDrawBlendMode(ManHinh, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ManHinh, 255, 100, 100, 120);
+    
+    for (const ToaDo& Diem : DuongDiGoiY_) {
+        SDL_Rect O = {Diem.x * KICH_THUOC_KHOI + 4, Diem.y * KICH_THUOC_KHOI + 4, KICH_THUOC_KHOI - 8, KICH_THUOC_KHOI - 8};
+        SDL_RenderFillRect(ManHinh, &O);
+    }
+}
+
+void NhanVatGame::VeCacNutDieuKhien(SDL_Renderer* ManHinh, TTF_Font* Font) {
+    // Vẽ 2 nút ở góc dưới phải
+    CapNhatNhapNhay();
+    
+    // Nút Gợi ý
+    SDL_SetRenderDrawColor(ManHinh, DangHienThiGoiY_ ? 100 : 50, 50, 50, 200);
+    SDL_RenderFillRect(ManHinh, &NutGoiY_);
+    SDL_SetRenderDrawColor(ManHinh, 255, 255, 255, 255);
+    SDL_RenderDrawRect(ManHinh, &NutGoiY_);
+    VeChu(ManHinh, Font, "Gợi ý", NutGoiY_.x + 30, NutGoiY_.y + 1, {255, 255, 255, 255});
+    
+    // Nút Hoàn lại
+    bool DangSang = false;
+    if (DangNhapNhay_) {
+        // Nhấp nháy: sáng/tối theo chu kỳ
+        DangSang = (DemNhapNhay_ % 2 == 0);
+    }
+    
+    if (DangSang) {
+        // Màu sáng khi nhấp nháy
+        SDL_SetRenderDrawColor(ManHinh, 100, 50, 50, 200);  // vàng đỏ
+    } else {
+        // Màu bình thường
+        SDL_SetRenderDrawColor(ManHinh, 50, 50, 50, 200);
+    }
+    
+    SDL_RenderFillRect(ManHinh, &NutHoanLai_);
+    
+   
+    SDL_SetRenderDrawColor(ManHinh, 255, 255, 255, 255);  // viền trắng
+    SDL_RenderDrawRect(ManHinh, &NutHoanLai_);
+    
+    SDL_Color MauTrang = {255, 255, 255, 255};
+    VeChu(ManHinh, Font, "Hoàn lại", NutHoanLai_.x + 20, NutHoanLai_.y + 1, MauTrang);
+}
+
+void NhanVatGame::VeTroChoi1(SDL_Renderer* ManHinh, TTF_Font* Font, const BanDoGame& BanDo){
+    if (KetThucTroChoi1_) return;
+    if(!NamTrongTroChoi1() && DaDongCuaTroChoi1_ == true){
+        AmThanhGame->PhatHieuUngAmThanh(SFX_DONG_CUA);
+        BanDoGame& BanDoTam = const_cast<BanDoGame&>(BanDo);
+        BanDoTam.KhoaCuaTroChoi1(TRO_CHOI_1_);
+        KetThucTroChoi1_ = true;
+    }
+    if (!NamTrongTroChoi1()) return;
+    
+    if (!DaDongCuaTroChoi1_){
+        AmThanhGame->PhatHieuUngAmThanh(SFX_DONG_CUA);
+        cout << "DA VAO TRO CHOI 1" << endl;
+        BanDoGame& BanDoTam = const_cast<BanDoGame&>(BanDo);
+        BanDoTam.KhoaCuaTroChoi1(TRO_CHOI_1_);
+        DaDongCuaTroChoi1_ = true;
+    }
+    VeThongTinBuocDi(ManHinh, Font);
+    VeDuongDiGoiY(ManHinh, BanDo);
+    VeCacNutDieuKhien(ManHinh, Font);
+}
+
+
+bool NhanVatGame::XuLyClickNutDieuKhien(int mouseX, int mouseY, const BanDoGame& BanDo) {
+    if (!NamTrongTroChoi1()) return false;
+    
+    if (mouseX >= NutGoiY_.x && mouseX <= NutGoiY_.x + NutGoiY_.w &&
+        mouseY >= NutGoiY_.y && mouseY <= NutGoiY_.y + NutGoiY_.h) {
+        BatTatGoiY();
+        return true;
+    }
+    
+    if (mouseX >= NutHoanLai_.x && mouseX <= NutHoanLai_.x + NutHoanLai_.w &&
+        mouseY >= NutHoanLai_.y && mouseY <= NutHoanLai_.y + NutHoanLai_.h) {
+        BatDauNhapNhay();
+        HoanLaiBuocDi(BanDo);
+        return true;
+    }
+    
+    return false;
+}
+
+
+void NhanVatGame::BatDauNhapNhay() {
+    DangNhapNhay_ = true;
+    ThoiGianBatDauNhapNhay_ = SDL_GetTicks();
+    DemNhapNhay_ = 0;
+}
+
+void NhanVatGame::CapNhatNhapNhay() {
+    if (!DangNhapNhay_) return;
+    
+    Uint32 ThoiGianHienTai = SDL_GetTicks();
+    Uint32 ThoiGianTroiQua = ThoiGianHienTai - ThoiGianBatDauNhapNhay_;
+    
+    // Kiểm tra xem đã hết thời gian nhấp nháy chưa
+    if (ThoiGianTroiQua >= (Uint32)(SoLanNhapNhay_ * ThoiGianNhapNhay_ * 2)) {  // Tổng thời gian nhấp nháy = số lần × thời gian mỗi lần × 2.
+        DangNhapNhay_ = false;
+        return;
+    }
+    
+    // Cập nhật số lần nhấp nháy
+    int LanNhapNhayHienTai = (int)(ThoiGianTroiQua / ThoiGianNhapNhay_); // chạy từ 0 đến 8;
+    DemNhapNhay_ = LanNhapNhayHienTai;
+}
 
 
 // =========================
@@ -473,7 +941,6 @@ void NhanVatGame::VeNhanVat(SDL_Renderer *ManHinh){
     SDL_Rect ViTriTrenManHinh = {NhanVat_.ViTriNhanVatX_, NhanVat_.ViTriNhanVatY_, KICH_THUOC_NHAN_VAT, KICH_THUOC_NHAN_VAT};
 
     SDL_RenderCopy(ManHinh, AnhNhanVatCanVe, &KhungHinhHienTai, &ViTriTrenManHinh);
-    
 }
 
 void NhanVatGame::VeChu(SDL_Renderer* ManHinh, TTF_Font* Font, const string& NoiDung, int x, int y, SDL_Color Mau){
@@ -563,7 +1030,7 @@ void NhanVatGame::VeTuiDo(SDL_Renderer *ManHinh, TTF_Font* Font,const string& Du
 
     // thông số 1 dòng
     int ChieuCaoMoiDong = 26;
-    int SoHangToiDa = SO_LUONG_SACH;
+
 
     // Thông số nội dung
     int ToaDoNoiDungX = ToaDoTuiDoX + Le;
@@ -585,14 +1052,22 @@ void NhanVatGame::VeTuiDo(SDL_Renderer *ManHinh, TTF_Font* Font,const string& Du
     }
 
     // Duyệt túi đồ -> hiển thị tối đa SO_LUONG_SACH
+
+    // // Mới 
+    
+    vector<pair<int,int>> TuiSachTam;
+    for (auto &p : TuiSach_) TuiSachTam.push_back(p);
+    sort(TuiSachTam.begin(), TuiSachTam.end(), [&](auto&a, auto&b){ return DanhSachTenSach_[a.first] < DanhSachTenSach_[b.first]; });
+    int tong = (int)TuiSachTam.size();
+    int BatDau = ChiSoSachDauTien_;
+    int KetThuc = min(tong, BatDau + SoLuongSachHienThi_);
+
     int Hang = 0;
-    for (auto &p : TuiSach_){
-        if (Hang >= SoHangToiDa){
-            cout << "VUOT MUC PICKER BALL SO HANG" << endl;
-            break;
-        }
-        int IDCucBo = p.first;
-        int SoLuong = p.second;
+    
+    for (int i = BatDau; i < KetThuc; i++){
+       
+        int IDCucBo = TuiSachTam[i].first;
+        int SoLuong = TuiSachTam[i].second;
         string TenSach = (IDCucBo >= 0 && IDCucBo < (int)DanhSachTenSach_.size()) ? DanhSachTenSach_[IDCucBo] : ("Loi! KHON TIM THAY TEN SACH" + to_string(IDCucBo));
 
         int ToaDoMoiDongY = ToaDoNoiDungY + Hang * ChieuCaoMoiDong;
@@ -635,6 +1110,8 @@ void NhanVatGame::VeTuiDo(SDL_Renderer *ManHinh, TTF_Font* Font,const string& Du
 
         Hang++;
     }
+
+
 }
 
 void NhanVatGame::VeBangChiDan(SDL_Renderer *ManHinh, TTF_Font* Font, const BanDoGame& BanDo){

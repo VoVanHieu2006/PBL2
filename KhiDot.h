@@ -7,7 +7,7 @@
 
 #define SO_KHUNG_HINH_KHI_DOT 3
 #define THOI_GIAN_HOI_SINH 5000
-#define TOC_DO_TAN_CONG 0.2
+#define TOC_DO_TAN_CONG 0.8
 
 
 class KhiDot{

@@ -7,7 +7,7 @@
 
 #define THOI_GIAN_HOI_SINH 5000
 #define SO_KHUNG_HINH_PHAP_SU 4
-#define TOC_DO_PHEP_THUAT 0.2
+#define TOC_DO_PHEP_THUAT 0.6
 #define THOI_GIAN
 
 

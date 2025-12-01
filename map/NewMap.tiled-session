@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "BanDo1.tmj",
+    "activeFile": "BanDo2.tmj",
     "expandedProjectPaths": [
         "."
     ],
@@ -12,8 +12,8 @@
             "scale": 1.6669531249999998,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 319.74504382059337,
-                "y": 159.8725219102967
+                "x": 319.44509537423255,
+                "y": 159.87252191029668
             }
         },
         "BanDo1.tmj": {
@@ -23,16 +23,16 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 302.25,
-                "y": 159.75
+                "x": 396.75,
+                "y": 98.25
             }
         },
         "BanDo2.tmj": {
             "scale": 1.6669531249999998,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 319.74504382059337,
-                "y": 159.8725219102967
+                "x": 206.0645826498571,
+                "y": 233.659839715049
             }
         },
         "Book.tsj": {
@@ -80,7 +80,7 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 302,
+                "x": 396.75,
                 "y": 159.75
             }
         },
@@ -156,6 +156,7 @@
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "map.width": 40,
+    "mapScene.enableWorlds": false,
     "openFiles": [
         "MapNew.tmx",
         "San.tsj",
@@ -184,7 +185,7 @@
         "Effect0.tsj",
         "Door1.tsj",
         "Decor0.tsj",
-        "BanDo2.tmj"
+        "BanDo1.tmj"
     ],
     "tileset.lastUsedFormat": "json",
     "tileset.tileSize": {

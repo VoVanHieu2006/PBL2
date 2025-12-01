@@ -6,7 +6,7 @@
 vector<int> TimDuongBFS_1D(const ToaDo& diem_bat_dau, int so_hang, int so_cot, const vector<string>& luoi) {
     auto hop_le = [&](int r, int c){
         if (r < 0 || r >= so_hang || c < 0 || c >= so_cot) return false;
-        return luoi[r][c] != '#'; // '#' là tường
+        return true;
     };
 
     vector<int> ma_tran_khoang_cach(so_hang * so_cot, -1);
@@ -95,7 +95,6 @@ vector<int> TruyVetDuongDiDP(int so_tram,
     int tram_hien_tai = tram_ket_thuc;
 
     while (mask_hien_tai > 0) {
-        // Lưu chỉ số tương ứng trong cac_diem_quan_trong (0 = start, 1.. = tram)
         thu_tu_tham.push_back(tram_hien_tai + 1);
 
         if ((__builtin_popcount(mask_hien_tai)) == 1) break;
@@ -134,10 +133,10 @@ long long GiaiBangQuyHoachDongBitmask(int so_tram,
         dp[1 << i][i] = (long long)ban_do_khoang_cach[0][i + 1];
     }
 
-    for (int mask = 1; mask < (1 << so_tram); ++mask) {
+    for (long long mask = 1; mask < (1 << so_tram); ++mask) {
         for (int i = 0; i < so_tram; ++i) {
             if ((mask >> i) & 1) {
-                int mask_truoc = mask ^ (1 << i);
+                long long mask_truoc = mask ^ (1 << i);
                 if (mask_truoc == 0) continue;
                 for (int j = 0; j < so_tram; ++j) {
                     if ((mask_truoc >> j) & 1) {
@@ -221,6 +220,11 @@ vector<int> KhoiTaoBangChenDiemXaNhat(int so_diem, const vector<vector<int>>& ba
                 vi_tri_chen_tot_nhat = (int)i + 1;
             }
         }
+        long long chi_phi_cuoi = (long long)ban_do_khoang_cach[tour.back()][diem_xa_nhat];
+        if (chi_phi_cuoi < chi_phi_tang_min){
+            chi_phi_tang_min = chi_phi_cuoi;
+            vi_tri_chen_tot_nhat = (int)tour.size();
+        }
 
         tour.insert(tour.begin() + vi_tri_chen_tot_nhat, diem_xa_nhat);
         da_tham[diem_xa_nhat] = true;
@@ -237,10 +241,10 @@ void TimKiemCucBo2Opt(vector<int>& lo_trinh, const vector<vector<int>>& ban_do_k
     a.push_back(0);
     a.insert(a.end(), lo_trinh.begin(), lo_trinh.end());
     int n = (int)a.size();
-    bool improved = true;
+    bool CaiThien = true;
 
-    while (improved) {
-        improved = false;
+    while (CaiThien) {
+        CaiThien = false;
         for (int i = 0; i + 1 < n - 1; ++i) {
             for (int j = i + 1; j + 1 < n; ++j) {
                 int d1 = a[i], d2 = a[i + 1], d3 = a[j], d4 = a[j + 1];
@@ -248,7 +252,7 @@ void TimKiemCucBo2Opt(vector<int>& lo_trinh, const vector<vector<int>>& ban_do_k
                                  - ((long long)ban_do_khoang_cach[d1][d2] + ban_do_khoang_cach[d3][d4]);
                 if (gain < 0) {
                     reverse(a.begin() + i + 1, a.begin() + j + 1);
-                    improved = true;
+                    CaiThien = true;
                 }
             }
         }
@@ -275,7 +279,6 @@ void PhaRoiLoTrinh(vector<int>& lo_trinh) {
     t.insert(t.end(), lo_trinh.begin() + c + 1, lo_trinh.begin() + d + 1);
     t.insert(t.end(), lo_trinh.begin() + b + 1, lo_trinh.begin() + c + 1);
     t.insert(t.end(), lo_trinh.begin() + a + 1, lo_trinh.begin() + b + 1);
-    // BỊ THIẾU: ghép nốt đuôi [d+1 .. m-1]
     t.insert(t.end(), lo_trinh.begin() + d + 1, lo_trinh.end());
 
     lo_trinh.swap(t);
@@ -291,7 +294,7 @@ pair<vector<int>, long long> GiaiBangTimKiemDiaPhuongLap(int so_diem,
     vector<int> lo_trinh_tot_nhat = lo_trinh_hien_tai;
     long long chi_phi_tot_nhat = TinhChiPhiLoTrinh(lo_trinh_tot_nhat, ban_do_khoang_cach, khoang_cach_den_dich);
 
-    for (int iter = 0; iter < so_lan_lap_toi_da; ++iter) {
+    for (int lap = 0; lap < so_lan_lap_toi_da; ++lap) {
         vector<int> lo_trinh_bi_pha = lo_trinh_hien_tai;
         PhaRoiLoTrinh(lo_trinh_bi_pha);
         TimKiemCucBo2Opt(lo_trinh_bi_pha, ban_do_khoang_cach);
@@ -313,7 +316,7 @@ vector<ToaDo> TimDuongDiChiTiet(const ToaDo& diem_bat_dau, const ToaDo& diem_ket
     
     auto hop_le = [&](int r, int c) {
         if (r < 0 || r >= so_hang || c < 0 || c >= so_cot) return false;
-        return luoi[r][c] != '#';
+        return true;
     };
     
     if (!hop_le(diem_bat_dau.y, diem_bat_dau.x) || !hop_le(diem_ket_thuc.y, diem_ket_thuc.x)) {
@@ -392,19 +395,7 @@ pair<long long, vector<ToaDo>> ThuatToan1::GiaiToanBaiToan(const vector<string>&
     
     int so_tram = (int)cac_tram_dung_chan.size();
     
-    // TRƯỜNG HỢP ĐẶC BIỆT: KHÔNG CÓ TRẠM
-    if (so_tram == 0) {
-        auto kc = TimDuongBFS_1D(diem_xuat_phat, so_hang, so_cot, luoi);
-        int chi_phi = kc[idx_flat(diem_dich.y, diem_dich.x, so_cot)];
-        if (chi_phi != -1) {
-            chi_phi_toi_uu = (long long)chi_phi;
-            // TẠO ĐƯỜNG ĐI CHI TIẾT CHO TRƯỜNG HỢP KHÔNG CÓ TRẠM
-            duong_di_ket_qua = TimDuongDiChiTiet(diem_bat_dau_game, diem_ket_thuc_game, so_hang, so_cot, luoi);
-        }
-        return make_pair(chi_phi_toi_uu, duong_di_ket_qua);
-    }
-    
-    // TRƯỜNG HỢP CHÍNH: CÓ TRẠM CẦN ĐI QUA
+    // CÓ TRẠM 
     vector<ToaDo> cac_diem_quan_trong;
     cac_diem_quan_trong.reserve(1 + so_tram);
     cac_diem_quan_trong.push_back(diem_xuat_phat);
@@ -429,17 +420,21 @@ pair<long long, vector<ToaDo>> ThuatToan1::GiaiToanBaiToan(const vector<string>&
     
     // Giải bài toán tìm thứ tự tối ưu
     vector<int> thu_tu_tham;
+
     if (so_tram < 20) {
         vector<vector<long long>> dp;
         chi_phi_toi_uu = GiaiBangQuyHoachDongBitmask(so_tram, ban_do_khoang_cach, khoang_cach_den_dich, dp);
         if (chi_phi_toi_uu < VO_CUNG) {
             thu_tu_tham = TruyVetDuongDiDP(so_tram, dp, ban_do_khoang_cach, khoang_cach_den_dich);
         }
-    } else {
+    } else{
         auto ket_qua = GiaiBangTimKiemDiaPhuongLap(so_diem_xu_ly, ban_do_khoang_cach, khoang_cach_den_dich, 1000);
         thu_tu_tham = ket_qua.first;
         chi_phi_toi_uu = ket_qua.second;
     }
+    
+    
+
     
     // TẠO ĐƯỜNG ĐI CHI TIẾT KHI CÓ NGHIỆM
     if (chi_phi_toi_uu < VO_CUNG) {
